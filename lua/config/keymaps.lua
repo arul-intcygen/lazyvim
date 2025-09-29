@@ -86,3 +86,70 @@ end, {
   nargs = 1,
   desc = "Preview lines in floating window",
 })
+
+-- FLOATING WINDOW EDIT FUNCTION
+local function edit_lines_in_float(start_line, end_line)
+  local current_buf = vim.api.nvim_get_current_buf()
+  -- Ambil isi baris yang ingin diedit
+  local lines = vim.api.nvim_buf_get_lines(current_buf, start_line - 1, end_line, false)
+
+  -- Buat buffer baru untuk editing (buffer normal, bukannya [nofile])
+  local edit_buf = vim.api.nvim_create_buf(true, false)
+  vim.api.nvim_buf_set_lines(edit_buf, 0, -1, false, lines)
+  vim.api.nvim_buf_set_option(edit_buf, "bufhidden", "wipe")
+  vim.api.nvim_buf_set_option(edit_buf, "filetype", vim.bo.filetype)
+
+  local width = math.floor(vim.o.columns * 0.8)
+  local height = math.min(#lines + 2, math.floor(vim.o.lines * 0.8))
+  local opts = {
+    relative = "editor",
+    width = width,
+    height = height,
+    col = math.floor((vim.o.columns - width) / 2),
+    row = math.floor((vim.o.lines - height) / 2),
+    anchor = "NW",
+    style = "minimal",
+    border = "rounded",
+    title = string.format("Edit Lines %d-%d", start_line, end_line),
+    title_pos = "center",
+  }
+  local win = vim.api.nvim_open_win(edit_buf, true, opts)
+  vim.api.nvim_win_set_option(win, "cursorline", true)
+  vim.api.nvim_win_set_option(win, "number", true)
+
+  -- Keymap untuk simpan hasil edit kembali ke buffer asal
+  vim.keymap.set("n", "<leader>se", function()
+    local new_lines = vim.api.nvim_buf_get_lines(edit_buf, 0, -1, false)
+    vim.api.nvim_buf_set_lines(current_buf, start_line - 1, end_line, false, new_lines)
+    vim.api.nvim_win_close(win, true)
+  end, { buffer = edit_buf, desc = "Save EditLines to main buffer" })
+
+  -- Keymap untuk batal/keluar tanpa menyimpan perubahan
+  vim.keymap.set("n", "q", "<cmd>close<cr>", { buffer = edit_buf })
+  vim.keymap.set("n", "<Esc>", "<cmd>close<cr>", { buffer = edit_buf })
+end
+
+vim.keymap.set("n", "<leader>ev", function()
+  vim.ui.input({ prompt = "Start line (edit): " }, function(start)
+    if start then
+      vim.ui.input({ prompt = "End line (edit): " }, function(stop)
+        if stop then
+          edit_lines_in_float(tonumber(start), tonumber(stop))
+        end
+      end)
+    end
+  end)
+end, { desc = "Edit lines in floating window" })
+
+vim.api.nvim_create_user_command("EditLines", function(opts)
+  local range = opts.args
+  local start_line, end_line = range:match("(%d+),(%d+)")
+  if start_line and end_line then
+    edit_lines_in_float(tonumber(start_line), tonumber(end_line))
+  else
+    vim.notify("Usage: :EditLines start,end (e.g., :EditLines 5,20)")
+  end
+end, {
+  nargs = 1,
+  desc = "Edit lines in floating window",
+})
