@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 -- Keymaps are automatically loaded on the VeryLazy event
 -- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
 -- Add any additional keymaps here
@@ -141,6 +142,7 @@ vim.keymap.set("n", "<leader>ev", function()
   end)
 end, { desc = "Edit lines in floating window" })
 
+-- Keymap "EditLines"
 vim.api.nvim_create_user_command("EditLines", function(opts)
   local range = opts.args
   local start_line, end_line = range:match("(%d+),(%d+)")
