@@ -19,6 +19,7 @@ require("lazy").setup({
     { import = "lazyvim.plugins.extras.linting.eslint" },
     { import = "lazyvim.plugins.extras.formatting.prettier" },
     { import = "plugins.nvim-comment" },
+    { import = "lazyvim.plugins.extras.lang.python" },
     { "akinsho/git-conflict.nvim", version = "*", config = true },
     -- import/override with your plugins
     { import = "plugins" },
