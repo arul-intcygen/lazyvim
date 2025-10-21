@@ -1,11 +1,16 @@
 -- plugins/autopairs.lua
 
 return {
-  "windwp/nvim-autopairs", -- Plugin nvim-autopairs
-  event = "InsertEnter",
-  -- Menggunakan 'keys' untuk konfigurasi dasar
-  config = function()
-    -- Memastikan nvim-autopairs diaktifkan dengan konfigurasi default yang sudah cerdas
-    require("nvim-autopairs").setup({})
-  end,
+  {
+    "nvim-mini/mini.pairs",
+    enabled = false,
+  },
+  -- plugin autopairs favoritmu
+  {
+    "windwp/nvim-autopairs",
+    event = "InsertEnter",
+    config = function()
+      require("nvim-autopairs").setup({})
+    end,
+  },
 }
